@@ -1,0 +1,69 @@
+/*
+  Mini Weather Station using ESP32C3 dev kit 2 and a BME280 Sensor.
+
+  By Thomas Bourgeois
+*/
+
+#include "secrets.h"
+#include "ThingSpeak.h"
+#include <WiFi.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
+#include "LibPrintf.h"
+
+
+// WiFi Parameters:
+unsigned long wifiStartAttemptTime = millis();
+const unsigned long wifiTimeout = 30 * 1000;
+char ssid[] = SECRET_SSID;
+char pass[] = SECRET_PASS;
+WiFiClient client;
+
+// Thingspeak Parameters:
+unsigned long myChannelNumber = SECRET_CH_ID;
+const char* myWriteAPIKey = SECRET_WRITE_APIKEY;
+
+// I2C Parameters
+#define I2C_SDA 1
+#define I2C_SCL 0
+Adafruit_BME280 bme;
+
+void setup() {
+  Serial.begin(115200);
+  printf("***Program Started***\n");
+  delay(1000);
+
+  // --- I2C ---
+  Wire.begin(I2C_SDA, I2C_SCL);
+
+  // --- Connect WiFi ---
+  printf("Connecting to WiFi: %s\n", ssid);
+  WiFi.begin(ssid, pass);
+
+
+  while (WiFi.status() != WL_CONNECTED && millis() - wifiStartAttemptTime < wifiTimeout) {
+    printf(".");
+    delay(50);
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    printf("\nWiFi connected!\n");
+  }
+
+  // ThingSpeak.begin(client);
+
+  // --- Start BME280 ---
+  if (bme.begin(0x76)) {
+    printf("BME280 detected!\n");
+  }
+}
+
+void loop() {
+  float temp = bme.readTemperature();
+  float hum = bme.readHumidity();
+  float pres = bme.readPressure() / 100.0;
+
+  printf("T = %0.1f, H = %0.1f, P = %0.2f\n", temp, hum, pres);
+
+  delay(1500);  // 20 seconds
+}
