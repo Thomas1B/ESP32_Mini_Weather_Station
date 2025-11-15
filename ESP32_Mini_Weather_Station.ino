@@ -27,6 +27,11 @@
 #define I2C_SCL 0
 #define BME_ADR 0x76  // BME address
 
+// Reading Parameters for BME280
+unsigned long rReadTimeInvertal = 2 * 1000;  // must be milliseconds
+#define NUM_READINGS 9
+
+// WiFi Parameters
 const unsigned long wifiTimeout = 5 * 1000;  // must be milliseconds
 
 //  **************** Program Variables ****************
@@ -48,8 +53,10 @@ Adafruit_BME280 bme;  // bme sensor object
 // Reading Parameters
 unsigned long lastReadTime = 0;
 
+
 //  **************** Function Declaration ****************
 void setRGB(byte r, byte g, byte b);
+float average(float arr[], int length);
 
 //  **************** Set up ****************
 void setup() {
@@ -119,9 +126,27 @@ void setup() {
 
 //  **************** Main Loop ****************
 void loop() {
-  float temp = bme.readTemperature();
-  float hum = bme.readHumidity();
-  float pres = bme.readPressure() / 100.0;
+  float temp;
+  float hum;
+  float pres;
+
+  unsigned long nowTime = millis();
+  if ((nowTime - lastReadTime) >= rReadTimeInvertal) {
+    float temperature[NUM_READINGS];
+    float humidity[NUM_READINGS];
+    float pressure[NUM_READINGS];
+    for (int i = 0; i < NUM_READINGS; i++) {
+      temperature[i] = bme.readTemperature();
+      humidity[i] = bme.readHumidity();
+      pressure[i] = bme.readPressure() / 100.0;
+      delay(250);
+    }
+
+    temp = average(temperature, NUM_READINGS);
+    hum = average(humidity, NUM_READINGS);
+    pres = average(pressure, NUM_READINGS);
+  }
+
 
   printf("T = %0.1f, H = %0.1f, P = %0.2f\n", temp, hum, pres);
 
@@ -140,4 +165,17 @@ void setRGB(byte r, byte g, byte b) {
   */
   rgbLED.setPixelColor(0, rgbLED.Color(r, g, b));
   rgbLED.show();
+}
+
+float average(float arr[], int length) {
+  /*
+  Function calculate the average of a given array and length.
+  Returns float.
+  */
+  float sum = 0;
+
+  for (int i = 0; i < length; i++) {
+    sum += arr[i];
+  }
+  return (float)sum / length;
 }
