@@ -45,6 +45,9 @@ const char* myWriteAPIKey = SECRET_WRITE_APIKEY;
 Adafruit_NeoPixel rgbLED(1, PIN_RGB, NEO_GRB + NEO_KHZ800);
 Adafruit_BME280 bme;  // bme sensor object
 
+// Reading Parameters
+unsigned long lastReadTime = 0;
+
 //  **************** Function Declaration ****************
 void setRGB(byte r, byte g, byte b);
 
@@ -81,6 +84,8 @@ void setup() {
     printf(" -> Connected!\n");
   } else {
     printf(" -> Failed!\n");
+    printf("Check your SSID Name and password in secrets.h\n");
+    printf("or try the \"WiFiScan\" example in the WiFi library.\n");
     while (1) {
       setRGB(50, 0, 0);
       delay(500);
@@ -91,9 +96,11 @@ void setup() {
 
   // Checking BME status
   if (bme.begin(BME_ADR)) {
-    printf("BME280 Sensor Connection Succesful!\n");
+    printf("BME280 Sensor -> Succesful!\n");
   } else {
-    printf("BME280 Sencer Connection Failed...\n");
+    printf("BME280 Sencer -> Failed...\n");
+    printf("Check pin connections: SDA -> GPIO %d, SCL -> GPI0%d\n", I2C_SDA, I2C_SCL);
+    printf("or check the address of the BME280 using the \"WireScan\" example in Wire library.\n");
     while (1) {
       setRGB(50, 50, 0);
       delay(500);
@@ -106,6 +113,7 @@ void setup() {
 
   printf("Everthing is connected!\n\n");
   setRGB(0, 50, 0);
+  delay(1000);
 }
 
 
