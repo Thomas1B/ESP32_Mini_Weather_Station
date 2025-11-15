@@ -93,7 +93,7 @@ void setup() {
   if (bme.begin(BME_ADR)) {
     printf("BME280 Sensor Connection Succesful!\n");
   } else {
-    printf("BME280 Sencer Connection Cailed...\n");
+    printf("BME280 Sencer Connection Failed...\n");
     while (1) {
       setRGB(50, 50, 0);
       delay(500);
