@@ -26,6 +26,8 @@ const char* myWriteAPIKey = SECRET_WRITE_APIKEY;
 // I2C Parameters
 #define I2C_SDA 1
 #define I2C_SCL 0
+#define BME_ADR 0x76;
+
 Adafruit_BME280 bme;
 
 void setup() {
@@ -36,24 +38,23 @@ void setup() {
   // --- I2C ---
   Wire.begin(I2C_SDA, I2C_SCL);
 
-  // --- Connect WiFi ---
+  // Connecting to WiFi, timeout after some time.
   printf("Connecting to WiFi: %s\n", ssid);
   WiFi.begin(ssid, pass);
-
-
   while (WiFi.status() != WL_CONNECTED && millis() - wifiStartAttemptTime < wifiTimeout) {
     printf(".");
     delay(50);
   }
 
+  // Checking WiFi Status
   if (WiFi.status() == WL_CONNECTED) {
     printf("\nWiFi connected!\n");
   }
 
   // ThingSpeak.begin(client);
 
-  // --- Start BME280 ---
-  if (bme.begin(0x76)) {
+  // Checking BME status
+  if (bme.begin(BME_ADR)) {
     printf("BME280 detected!\n");
   }
 }
